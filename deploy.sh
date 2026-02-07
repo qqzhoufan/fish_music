@@ -79,6 +79,8 @@ fi
 if [ ! -f "youtube-cookies.txt" ]; then
     cp youtube-cookies.txt.example youtube-cookies.txt
     echo "ℹ️  youtube-cookies.txt 已从模板创建（需要填写 cookie 值）"
+else
+    echo "ℹ️  youtube-cookies.txt 已存在，跳过"
 fi
 
 echo ""
