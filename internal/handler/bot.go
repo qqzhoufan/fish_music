@@ -228,6 +228,7 @@ func (h *BotHandler) cmdStart(message *tgbotapi.Message, user *model.User) error
 • <b>/history</b> - 播放历史记录
 • <b>/stats</b> - 音乐库统计
 • <b>/add</b> - 添加音乐教程
+• <b>/cookies</b> - 配置 YouTube 下载 ⭐ 新功能
 
 <b>🌟 特色功能</b>
 ✅ YouTube 自动下载 - 发链接即可
@@ -235,6 +236,9 @@ func (h *BotHandler) cmdStart(message *tgbotapi.Message, user *model.User) error
 ✅ 收藏和历史 - 永久记录
 ✅ 无限存储 - 基于 Telegram 云端
 ✅ 歌曲分类 - 类型/语言筛选
+
+<b>❓ YouTube 下载失败？</b>
+发送 /cookies 查看配置教程
 
 💡 <b>小技巧</b>
 在任何群组中输入 @BotName 关键词 也能搜索！
@@ -295,6 +299,7 @@ func (h *BotHandler) cmdHelp(message *tgbotapi.Message, user *model.User) error 
 <b>/history</b> - 播放历史（最近20首）
 <b>/stats</b> - 音乐库统计数据
 <b>/add</b> - 添加音乐详细教程
+<b>/cookies</b> - 配置 YouTube 下载 ⭐ 新功能
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -329,6 +334,12 @@ func (h *BotHandler) cmdHelp(message *tgbotapi.Message, user *model.User) error 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
 <b>❓ 常见问题</b>
+
+Q: YouTube 下载失败怎么办？
+A: 如果显示 "Sign in to confirm you're not a bot" 错误：
+   1. 发送 <code>/cookies</code> 查看配置教程
+   2. 按提示配置 cookies 即可解决
+   3. 配置后需管理员重启服务
 
 Q: 下载 YouTube 需要多久？
 A: 通常 1-3 分钟，取决于视频大小
