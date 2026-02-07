@@ -65,16 +65,16 @@ func (s *YTDLPService) DownloadAndSave(chatID int64, videoURL string, user *mode
 		if strings.Contains(errMsg, "Sign in to confirm you're not a bot") ||
 		   strings.Contains(errMsg, "cookies") ||
 		   strings.Contains(errMsg, "HTTP Error 429") {
-			// 提供友好的替代方案提示
+			// 提示配置 cookies
 			fallbackMsg := tgbotapi.NewMessage(chatID,
 				"⚠️ YouTube 检测到自动化请求，暂时无法直接下载\n\n"+
-				"📝 替代方案：\n"+
-				"1️⃣ 访问在线转换网站：\n"+
-				"   • https://y2mate.com\n"+
-				"   • https://yt1s.com\n\n"+
-				"2️⃣ 粘贴 YouTube 链接，转换为 MP3\n\n"+
-				"3️⃣ 下载后直接发送 MP3 文件给我\n\n"+
-				"💡 这样也能完美保存到音乐库！")
+				"🍪 <b>解决方案：</b>\n\n"+
+				"发送 <code>/cookies</code> 命令查看配置教程\n\n"+
+				"只需 3 步即可解决：\n"+
+				"1️⃣ 获取 Cookie（浏览器 F12）\n"+
+				"2️⃣ 发送 /cookies &lt;cookie值&gt;\n"+
+				"3️⃣ 重启服务\n\n"+
+				"💡 配置后即可正常下载 YouTube 音乐！")
 			fallbackMsg.ParseMode = "HTML"
 			s.bot.Send(fallbackMsg)
 		} else {
