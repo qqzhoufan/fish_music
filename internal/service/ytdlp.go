@@ -119,9 +119,9 @@ func (s *YTDLPService) downloadWithYTDLP(videoURL string) (string, *SongInfo, er
 	)
 	// 设置环境变量
 	titleCmd.Env = append(os.Environ(), "LANG=C.UTF-8", "LC_ALL=C.UTF-8")
-	titleOutput, err := titleCmd.Output()
+	titleOutput, err := titleCmd.CombinedOutput()
 	if err != nil {
-		return "", nil, fmt.Errorf("获取标题失败: %w", err)
+		return "", nil, fmt.Errorf("获取标题失败: %w\n输出: %s", err, string(titleOutput))
 	}
 	title := strings.TrimSpace(string(titleOutput))
 
