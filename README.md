@@ -26,6 +26,15 @@
 **无需克隆源码，直接使用已构建的镜像！**
 
 ```bash
+# 下载并运行一键部署脚本
+curl -fsSL https://raw.githubusercontent.com/qqzhoufan/fish_music/main/deploy.sh -o deploy.sh
+chmod +x deploy.sh
+./deploy.sh
+```
+
+**或者手动下载文件：**
+
+```bash
 # 1. 创建项目目录
 mkdir fish-music && cd fish-music
 
@@ -39,10 +48,17 @@ nano config.yaml
 # 4. 下载 docker-compose.yml
 wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/docker-compose.yml
 
-# 5. 启动服务
+# 5. 下载 sql 目录和初始化脚本
+mkdir -p sql
+wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/sql/init.sql -O sql/init.sql
+
+# 6. 创建临时目录
+mkdir -p tmp
+
+# 7. 启动服务
 docker compose up -d
 
-# 6. 查看日志
+# 8. 查看日志
 docker compose logs -f bot
 ```
 

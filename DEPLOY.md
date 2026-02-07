@@ -138,15 +138,29 @@ sudo chmod +x /usr/local/bin/docker-compose
 **选项 A：使用 Docker Hub 镜像（推荐，最快）**
 
 ```bash
-# 创建项目目录
+# 方法一：一键部署脚本（最简单）
+curl -fsSL https://raw.githubusercontent.com/qqzhoufan/fish_music/main/deploy.sh -o deploy.sh
+chmod +x deploy.sh
+./deploy.sh
+```
+
+```bash
+# 方法二：手动下载文件
 mkdir fish-music && cd fish-music
 
-# 下载配置文件模板
+# 下载配置文件
 wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/config.yaml.example
 mv config.yaml.example config.yaml
 
 # 下载 docker-compose.yml
 wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/docker-compose.yml
+
+# 创建 sql 目录并下载初始化脚本（重要！）
+mkdir -p sql
+wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/sql/init.sql -O sql/init.sql
+
+# 创建临时目录
+mkdir -p tmp
 ```
 
 **选项 B：从 GitHub 克隆（完整源码）**
