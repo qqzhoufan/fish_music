@@ -511,17 +511,50 @@ curl -I https://api.telegram.org
 
 ### Q4: YouTube 下载失败
 
+**错误信息**：`Sign in to confirm you're not a bot`
+
 **可能原因**：
+- YouTube 检测到自动化请求
 - 服务器网络无法访问 YouTube
 - yt-dlp 版本过旧
 
 **解决方案**：
 
+**方法 1：配置 Cookies（推荐）**
+
+通过 Bot 命令快速配置：
+
+1. 获取 Cookie：
+   - 打开 https://www.youtube.com 并登录
+   - 按 `F12` → Application → Cookies
+   - 找到 `__Secure-3PSID` 或 `SID`
+   - 复制 Value 值
+
+2. 发送给 Bot：
+   ```
+   /cookies <复制的cookie值>
+   ```
+
+3. 重启服务：
+   ```bash
+   docker compose restart bot
+   ```
+
+详细说明：[COOKES.md](./COOKES.md)
+
+**方法 2：使用在线转换工具**
+
+- 访问 https://y2mate.com 或 https://yt1s.com
+- 将 YouTube 链接转换为 MP3
+- 直接发送 MP3 文件给 Bot
+
+**方法 3：更新 yt-dlp**
+
 ```bash
 # 进入容器更新 yt-dlp
 docker compose exec bot yt-dlp --update
 
-# 或重启容器让系统自动更新
+# 或重启容器
 docker compose restart bot
 ```
 
