@@ -14,14 +14,18 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-# 创建项目目录
-mkdir -p fish-music
-cd fish-music
+# 检查是否在正确的目录
+if [ -f "deploy.sh" ] && [ -d "fish-music" ]; then
+    echo "⚠️  检测到你在父目录，请不要在项目目录内运行此脚本！"
+    echo "    请切换到其他目录，或删除现有的 fish-music 子目录"
+    exit 1
+fi
 
-echo "📥 下载部署文件..."
+echo "📥 下载部署文件到当前目录 ($(pwd))..."
 
 # 下载配置文件
 if [ ! -f "config.yaml.example" ]; then
+    echo "📥 下载 config.yaml.example..."
     wget -q --show-progress \
         https://raw.githubusercontent.com/qqzhoufan/fish_music/main/config.yaml.example \
         -O config.yaml.example
@@ -32,39 +36,61 @@ fi
 if [ ! -f "config.yaml" ]; then
     cp config.yaml.example config.yaml
     echo "✅ config.yaml 已创建"
+else
+    echo "ℹ️  config.yaml 已存在，跳过"
 fi
 
 # 下载 docker-compose.yml
 if [ ! -f "docker-compose.yml" ]; then
+    echo "📥 下载 docker-compose.yml..."
     wget -q --show-progress \
         https://raw.githubusercontent.com/qqzhoufan/fish_music/main/docker-compose.yml \
         -O docker-compose.yml
     echo "✅ docker-compose.yml"
+else
+    echo "ℹ️  docker-compose.yml 已存在，跳过"
 fi
 
 # 创建 sql 目录并下载初始化脚本
 mkdir -p sql
 if [ ! -f "sql/init.sql" ]; then
+    echo "📥 下载 sql/init.sql..."
     wget -q --show-progress \
         https://raw.githubusercontent.com/qqzhoufan/fish_music/main/sql/init.sql \
         -O sql/init.sql
     echo "✅ sql/init.sql"
+else
+    echo "ℹ️  sql/init.sql 已存在，跳过"
 fi
 
 # 创建临时目录
 mkdir -p tmp
 
 echo ""
-echo "📝 请编辑配置文件，填入你的 Bot Token 和 Admin ID："
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ 部署文件准备完成！"
+echo ""
+echo "📝 下一步操作："
+echo ""
+echo "1️⃣  编辑配置文件："
 echo "   nano config.yaml"
 echo ""
-echo "配置完成后，运行以下命令启动服务："
+echo "2️⃣  启动服务："
 echo "   docker compose up -d"
 echo ""
-echo "查看日志："
+echo "3️⃣  查看日志："
 echo "   docker compose logs -f bot"
 echo ""
-echo "停止服务："
+echo "4️⃣  停止服务："
 echo "   docker compose down"
 echo ""
-echo "✅ 部署文件准备完成！"
+echo "5️⃣  重启服务："
+echo "   docker compose restart"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "💡 提示：配置文件需要填入 Bot Token 和 Admin ID"
+echo "   获取方式："
+echo "   - Bot Token: @BotFather (发送 /newbot)"
+echo "   - Admin ID: @userinfobot (发送 /start)"
+echo ""
