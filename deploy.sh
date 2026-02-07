@@ -66,6 +66,21 @@ fi
 # 创建临时目录
 mkdir -p tmp
 
+# 下载 cookies 模板文件
+if [ ! -f "youtube-cookies.txt.example" ]; then
+    echo "📥 下载 youtube-cookies.txt.example..."
+    wget -q --show-progress \
+        https://raw.githubusercontent.com/qqzhoufan/fish_music/main/youtube-cookies.txt.example \
+        -O youtube-cookies.txt.example
+    echo "✅ youtube-cookies.txt.example (YouTube cookies 模板)"
+fi
+
+# 如果不存在 cookies 文件，从模板创建
+if [ ! -f "youtube-cookies.txt" ]; then
+    cp youtube-cookies.txt.example youtube-cookies.txt
+    echo "ℹ️  youtube-cookies.txt 已从模板创建（需要填写 cookie 值）"
+fi
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✅ 部署文件准备完成！"
@@ -75,22 +90,23 @@ echo ""
 echo "1️⃣  编辑配置文件："
 echo "   nano config.yaml"
 echo ""
-echo "2️⃣  启动服务："
+echo "2️⃣  （可选）配置 YouTube cookies："
+echo "   nano youtube-cookies.txt"
+echo "   解决 YouTube 下载失败问题，见文件内说明"
+echo ""
+echo "3️⃣  启动服务："
 echo "   docker compose up -d"
 echo ""
-echo "3️⃣  查看日志："
+echo "4️⃣  查看日志："
 echo "   docker compose logs -f bot"
 echo ""
-echo "4️⃣  停止服务："
+echo "5️⃣  停止服务："
 echo "   docker compose down"
-echo ""
-echo "5️⃣  重启服务："
-echo "   docker compose restart"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "💡 提示：配置文件需要填入 Bot Token 和 Admin ID"
-echo "   获取方式："
+echo "💡 提示："
 echo "   - Bot Token: @BotFather (发送 /newbot)"
 echo "   - Admin ID: @userinfobot (发送 /start)"
+echo "   - YouTube 下载失败? 编辑 youtube-cookies.txt"
 echo ""

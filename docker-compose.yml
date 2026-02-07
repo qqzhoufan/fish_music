@@ -39,7 +39,10 @@ services:
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - ./tmp:/app/tmp
-      - ./youtube-cookies.txt:/app/youtube-cookies.txt:ro  # YouTube cookies 文件（可选，如遇到验证问题）
+      # YouTube cookies 文件（可选，解决 YouTube bot 检测问题）
+      # 部署时会自动从 youtube-cookies.txt.example 创建模板
+      # 编辑 youtube-cookies.txt 填入你的 cookie 值即可
+      - ./youtube-cookies.txt:/app/youtube-cookies.txt:ro
     command: ["/app/bin/bot"]
 
   # Web 管理服务

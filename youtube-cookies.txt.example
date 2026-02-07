@@ -1,0 +1,29 @@
+# Netscape HTTP Cookie File
+#
+# 这是 YouTube cookies 模板文件
+# 使用方法：
+# 1. 复制此文件为 youtube-cookies.txt
+#    cp youtube-cookies.txt.example youtube-cookies.txt
+#
+# 2. 获取 Cookie 值（Chrome/Edge）：
+#    - 打开 https://www.youtube.com 并登录
+#    - 按 F12 打开开发者工具
+#    - 点击 "Application" 标签
+#    - 左侧展开 "Cookies" → 点击 "https://www.youtube.com"
+#    - 找到 "__Secure-3PSID" 或 "SID"
+#    - 双击 Value 列，复制值
+#
+# 3. 将下面 <YOUR_COOKIE_HERE> 替换为复制的值
+#
+# 4. 保存文件，重启服务：
+#    docker compose down
+#    docker compose up -d
+#
+# 详细说明：见 COOKES.md
+#
+# ========================================
+#
+# 格式说明（Tab 分隔）：
+# 域名    子域名    路径    HTTPS    过期时间    名称    值
+#
+.youtube.com	TRUE	/	TRUE	0	__Secure-3PSID	<YOUR_COOKIE_HERE>
