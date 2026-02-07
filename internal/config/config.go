@@ -45,6 +45,7 @@ type DownloadConfig struct {
 	WorkerCount int    `mapstructure:"worker_count"`
 	MaxFileSize int    `mapstructure:"max_file_size"`
 	TempDir     string `mapstructure:"temp_dir"`
+	CookiesFile string `mapstructure:"cookies_file"` // YouTube cookies 文件路径（可选）
 }
 
 // SearchConfig 搜索配置
@@ -103,6 +104,7 @@ func setDefaults() {
 	viper.SetDefault("download.worker_count", 3)
 	viper.SetDefault("download.max_file_size", 50)
 	viper.SetDefault("download.temp_dir", "./tmp")
+	viper.SetDefault("download.cookies_file", "")
 	viper.SetDefault("search.api_url", "")
 	viper.SetDefault("search.timeout", 30)
 	viper.SetDefault("log.level", "info")

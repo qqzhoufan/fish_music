@@ -23,6 +23,9 @@ download:
   worker_count: 3                # 并发下载数量，建议 3-10
   max_file_size: 50              # 最大文件大小（MB），Telegram Bot API 限制为 50MB
   temp_dir: "./tmp"              # 临时文件目录
+  cookies_file: "/app/youtube-cookies.txt"  # YouTube cookies 文件路径（可选，用于解决 YouTube 验证问题）
+                                  # 留空或删除该行则不使用 cookies
+                                  # 如遇到 "Sign in to confirm you're not a bot" 错误，需要提供 cookies 文件
 
 # 搜索 API 配置（可选，暂时未使用）
 search:

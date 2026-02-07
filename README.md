@@ -191,6 +191,8 @@ docker compose -f docker-compose.build.yml up -d
 https://www.youtube.com/watch?v=xxxxx
 ```
 
+**注意**：如果遇到 "Sign in to confirm you're not a bot" 错误，需要配置 YouTube cookies。详见 [COOKIES.md](./COOKIES.md)
+
 **方式二：发送音频文件**
 
 直接在 Telegram 发送音频文件给 Bot，秒速保存。
@@ -297,10 +299,14 @@ https://www.youtube.com/watch?v=xxxxx
 ### Q: YouTube 下载失败怎么办？
 
 **A:** 可能的原因：
-1. 视频有地区限制或版权保护
-2. 服务器网络无法访问 YouTube
+1. **Bot 检测错误**：显示 "Sign in to confirm you're not a bot"
+   - **解决方案**：配置 YouTube cookies，详见 [COOKIES.md](./COOKIES.md)
+2. 视频有地区限制或版权保护
+3. 服务器网络无法访问 YouTube
 
-**推荐方案**：使用在线 YouTube 转 MP3 工具转换后，直接发送 MP3 文件给 Bot。
+**推荐方案**：
+- 配置 cookies（推荐）：参考 [YouTube Cookies 配置指南](./COOKIES.md)
+- 手动下载：使用在线 YouTube 转 MP3 工具转换后，直接发送 MP3 文件给 Bot
 
 ### Q: 日语、韩语歌名会显示乱码吗？
 
@@ -315,12 +321,25 @@ https://www.youtube.com/watch?v=xxxxx
 ## 📚 文档
 
 - 📖 **[详细部署指南](./DEPLOY.md)** - 完整的部署和安装说明
+- 🍪 **[YouTube Cookies 配置](./COOKES.md)** - 解决 YouTube bot 检测问题
 - 🎵 **[使用手册](./使用说明.md)** - 详细的使用说明和技巧
 - 🔧 **[配置详解](./DEPLOY.md#配置详解)** - 所有配置参数说明
 
 ---
 
 ## 🔄 更新日志
+
+### v1.3.0 (2026-02-08)
+
+#### 新增功能
+- ✨ 支持 YouTube cookies 认证，解决 "Sign in to confirm you're not a bot" 错误
+- ✨ 新增 `cookies_file` 配置选项（可选）
+- 📝 添加 [COOKIES.md](./COOKIES.md) 详细配置指南
+
+#### 优化改进
+- 🐛 修复 YouTube bot 检测导致的下载失败问题
+- 🎨 优化错误提示，提供更清晰的错误信息
+- 🔒 Docker compose 支持挂载 cookies 文件
 
 ### v1.2.0 (2026-02-08)
 

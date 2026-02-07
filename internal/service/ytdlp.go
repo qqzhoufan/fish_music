@@ -17,10 +17,11 @@ import (
 
 // YTDLPService yt-dlp 下载服务
 type YTDLPService struct {
-	bot      *tgbotapi.BotAPI
-	songRepo *database.SongRepository
-	tempDir  string
-	maxSize  int64
+	bot        *tgbotapi.BotAPI
+	songRepo   *database.SongRepository
+	tempDir    string
+	maxSize    int64
+	cookiesFile string // YouTube cookies 文件路径（可选）
 }
 
 // NewYTDLPService 创建下载服务
@@ -29,12 +30,14 @@ func NewYTDLPService(
 	songRepo *database.SongRepository,
 	tempDir string,
 	maxSize int,
+	cookiesFile string,
 ) *YTDLPService {
 	return &YTDLPService{
 		bot:      bot,
 		songRepo: songRepo,
 		tempDir:  tempDir,
 		maxSize:  int64(maxSize) * 1024 * 1024,
+		cookiesFile: cookiesFile,
 	}
 }
 
@@ -111,12 +114,18 @@ func (s *YTDLPService) downloadWithYTDLP(videoURL string) (string, *SongInfo, er
 	tempFile := tempBase + ".mp3"
 
 	// 第一步：获取标题
-	titleCmd := exec.Command("/usr/bin/yt-dlp",
+	titleArgs := []string{
 		"--print", "title",
 		"--no-playlist",
 		"--no-warnings",
-		videoURL,
-	)
+	}
+	// 如果提供了 cookies 文件，添加到参数中
+	if s.cookiesFile != "" {
+		titleArgs = append([]string{"--cookies", s.cookiesFile}, titleArgs...)
+	}
+	titleArgs = append(titleArgs, videoURL)
+
+	titleCmd := exec.Command("/usr/bin/yt-dlp", titleArgs...)
 	// 设置环境变量
 	titleCmd.Env = append(os.Environ(), "LANG=C.UTF-8", "LC_ALL=C.UTF-8")
 	titleOutput, err := titleCmd.CombinedOutput()
@@ -126,15 +135,21 @@ func (s *YTDLPService) downloadWithYTDLP(videoURL string) (string, *SongInfo, er
 	title := strings.TrimSpace(string(titleOutput))
 
 	// 第二步：下载音频
-	downloadCmd := exec.Command("/usr/bin/yt-dlp",
+	downloadArgs := []string{
 		"-x",                    // 仅提取音频
 		"--audio-format", "mp3", // 转换为 MP3
 		"--audio-quality", "0",  // 最佳质量
 		"-o", filename,          // 使用相对路径，不带扩展名
 		"--no-playlist",         // 不下载播放列表
 		"--no-warnings",         // 不显示警告
-		videoURL,
-	)
+	}
+	// 如果提供了 cookies 文件，添加到参数中
+	if s.cookiesFile != "" {
+		downloadArgs = append([]string{"--cookies", s.cookiesFile}, downloadArgs...)
+	}
+	downloadArgs = append(downloadArgs, videoURL)
+
+	downloadCmd := exec.Command("/usr/bin/yt-dlp", downloadArgs...)
 	// 设置工作目录
 	downloadCmd.Dir = s.tempDir
 	// 设置环境变量

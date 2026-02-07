@@ -78,6 +78,7 @@ func main() {
 		songRepo,
 		cfg.Download.TempDir,
 		cfg.Download.MaxFileSize,
+		cfg.Download.CookiesFile,
 	)
 
 	botHandler := handler.NewBotHandler(

@@ -39,6 +39,7 @@ services:
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - ./tmp:/app/tmp
+      - ./youtube-cookies.txt:/app/youtube-cookies.txt:ro  # YouTube cookies 文件（可选，如遇到验证问题）
     command: ["/app/bin/bot"]
 
   # Web 管理服务
