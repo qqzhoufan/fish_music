@@ -59,10 +59,30 @@ func (s *YTDLPService) DownloadAndSave(chatID int64, videoURL string, user *mode
 	tempFile, songInfo, err := s.downloadWithYTDLP(videoURL)
 	if err != nil {
 		s.bot.Request(tgbotapi.NewDeleteMessage(chatID, status.MessageID))
-		// 发送错误消息给用户
-		errorMsg := tgbotapi.NewMessage(chatID, fmt.Sprintf("❌ 下载失败\n\n%s", err.Error()))
-		errorMsg.ParseMode = "HTML"
-		s.bot.Send(errorMsg)
+
+		// 检查是否是 bot 检测错误
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "Sign in to confirm you're not a bot") ||
+		   strings.Contains(errMsg, "cookies") ||
+		   strings.Contains(errMsg, "HTTP Error 429") {
+			// 提供友好的替代方案提示
+			fallbackMsg := tgbotapi.NewMessage(chatID,
+				"⚠️ YouTube 检测到自动化请求，暂时无法直接下载\n\n"+
+				"📝 替代方案：\n"+
+				"1️⃣ 访问在线转换网站：\n"+
+				"   • https://y2mate.com\n"+
+				"   • https://yt1s.com\n\n"+
+				"2️⃣ 粘贴 YouTube 链接，转换为 MP3\n\n"+
+				"3️⃣ 下载后直接发送 MP3 文件给我\n\n"+
+				"💡 这样也能完美保存到音乐库！")
+			fallbackMsg.ParseMode = "HTML"
+			s.bot.Send(fallbackMsg)
+		} else {
+			// 其他错误，显示原始错误信息
+			errorMsg := tgbotapi.NewMessage(chatID, fmt.Sprintf("❌ 下载失败\n\n%s", err.Error()))
+			errorMsg.ParseMode = "HTML"
+			s.bot.Send(errorMsg)
+		}
 		return err
 	}
 	defer os.Remove(tempFile)
