@@ -40,9 +40,8 @@ services:
       - ./config.yaml:/app/config.yaml:ro
       - ./tmp:/app/tmp
       # YouTube cookies 文件（可选，解决 YouTube bot 检测问题）
-      # 部署时会自动从 youtube-cookies.txt.example 创建模板
-      # 编辑 youtube-cookies.txt 填入你的 cookie 值即可
-      - ./youtube-cookies.txt:/app/youtube-cookies.txt:ro
+      # 可通过 /cookies 命令配置，或手动编辑此文件
+      - ./youtube-cookies.txt:/app/youtube-cookies.txt
     command: ["/app/bin/bot"]
 
   # Web 管理服务
