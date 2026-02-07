@@ -948,24 +948,37 @@ func (h *BotHandler) cmdCookies(message *tgbotapi.Message, user *model.User) err
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-<b>使用方法：</b>
+<b>步骤 1：获取 Cookie</b>
 
-1. 获取 Cookie：
-   • 打开 https://www.youtube.com 并登录
-   • 按 F12 → Application → Cookies
-   • 找到 <code>__Secure-3PSID</code> 或 <code>SID</code>
-   • 复制 Value 值
+1️⃣ 打开 https://www.youtube.com 并登录
+2️⃣ 按 F12 打开开发者工具
+3️⃣ 点击顶部的 "Application" 标签
+4️⃣ 左侧展开：Storage → Cookies
+5️⃣ 点击 "https://www.youtube.com"
+6️⃣ 找到以下 Cookie 之一（按优先级）：
+   • <code>__Secure-3PSID</code> ⭐ 最佳
+   • <code>SID</code> ⭐ 推荐
+   • <code>HSID</code> ⭐ 备用
+7️⃣ 双击 "Value" 列复制值（不是 Name！）
 
-2. 发送给 Bot：
-   <code>/cookies 你的cookie值</code>
+⚠️ <b>重要提示：</b>
+• 必须先登录 YouTube
+• 复制的是 Value 列（很长的一串）
+• 如果找不到 youtube.com，试试 google.com
+
+<b>步骤 2：发送给 Bot</b>
+
+<code>/cookies 你的cookie值</code>
 
 <b>示例：</b>
-<code>/cookies CgQihi...</code>
+<code>/cookies CgQihiJ3...（很长的一串）</code>
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-💡 配置后需要重启服务才能生效
-   <code>docker compose restart bot</code>`
+💡 配置后需要重启服务：
+<code>docker compose restart bot</code>
+
+📖 <b>详细教程：</b> https://github.com/qqzhoufan/fish_music/blob/main/COOKES.md`
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ParseMode = "HTML"
@@ -984,8 +997,9 @@ func (h *BotHandler) cmdCookies(message *tgbotapi.Message, user *model.User) err
 	}
 
 	// 验证 cookie 格式（基本检查）
-	if len(cookieValue) < 50 {
-		msg := tgbotapi.NewMessage(message.Chat.ID, "❌ Cookie 值格式不正确（太短）\n\n请确保复制了完整的 Value 值")
+	if len(cookieValue) < 20 {
+		msg := tgbotapi.NewMessage(message.Chat.ID, "❌ Cookie 值格式不正确（太短）\n\n⚠️ 请确保：\n• 复制的是 Value 列（不是 Name）\n• 复制了完整的值\n• 已登录 YouTube")
+		msg.ParseMode = "HTML"
 		h.bot.Send(msg)
 		return nil
 	}
