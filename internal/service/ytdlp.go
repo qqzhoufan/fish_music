@@ -111,12 +111,14 @@ func (s *YTDLPService) downloadWithYTDLP(videoURL string) (string, *SongInfo, er
 	tempFile := tempBase + ".mp3"
 
 	// 第一步：获取标题
-	titleCmd := exec.Command("yt-dlp",
+	titleCmd := exec.Command("/usr/bin/yt-dlp",
 		"--print", "title",
 		"--no-playlist",
 		"--no-warnings",
 		videoURL,
 	)
+	// 设置环境变量
+	titleCmd.Env = append(os.Environ(), "LANG=C.UTF-8", "LC_ALL=C.UTF-8")
 	titleOutput, err := titleCmd.Output()
 	if err != nil {
 		return "", nil, fmt.Errorf("获取标题失败: %w", err)
@@ -124,7 +126,7 @@ func (s *YTDLPService) downloadWithYTDLP(videoURL string) (string, *SongInfo, er
 	title := strings.TrimSpace(string(titleOutput))
 
 	// 第二步：下载音频
-	downloadCmd := exec.Command("yt-dlp",
+	downloadCmd := exec.Command("/usr/bin/yt-dlp",
 		"-x",                    // 仅提取音频
 		"--audio-format", "mp3", // 转换为 MP3
 		"--audio-quality", "0",  // 最佳质量
@@ -133,6 +135,10 @@ func (s *YTDLPService) downloadWithYTDLP(videoURL string) (string, *SongInfo, er
 		"--no-warnings",         // 不显示警告
 		videoURL,
 	)
+	// 设置工作目录
+	downloadCmd.Dir = s.tempDir
+	// 设置环境变量
+	downloadCmd.Env = append(os.Environ(), "LANG=C.UTF-8", "LC_ALL=C.UTF-8")
 	// 设置工作目录
 	downloadCmd.Dir = s.tempDir
 
