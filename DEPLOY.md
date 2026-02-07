@@ -133,11 +133,27 @@ sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-#### 步骤 2：下载项目
+#### 步骤 2：获取部署文件
+
+**选项 A：使用 Docker Hub 镜像（推荐，最快）**
+
+```bash
+# 创建项目目录
+mkdir fish-music && cd fish-music
+
+# 下载配置文件模板
+wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/config.yaml.example
+mv config.yaml.example config.yaml
+
+# 下载 docker-compose.yml
+wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/docker-compose.yml
+```
+
+**选项 B：从 GitHub 克隆（完整源码）**
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/fish-music.git
+git clone https://github.com/qqzhoufan/fish_music.git
 cd fish-music
 ```
 

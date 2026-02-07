@@ -1,5 +1,9 @@
 version: '3.8'
 
+# 开发者版本：使用本地构建
+# 用于开发调试，需要本地有 Dockerfile 和源代码
+# 使用方法：docker compose -f docker-compose.build.yml up -d
+
 services:
   # PostgreSQL 数据库
   postgres:
@@ -22,9 +26,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # Bot 服务
+  # Bot 服务（本地构建）
   bot:
-    image: zhouwl/fish-music:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: fish_music_bot
     restart: unless-stopped
     depends_on:
@@ -41,9 +47,11 @@ services:
       - ./tmp:/app/tmp
     command: ["/app/bin/bot"]
 
-  # Web 管理服务
+  # Web 管理服务（本地构建）
   web:
-    image: zhouwl/fish-music:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: fish_music_web
     restart: unless-stopped
     depends_on:

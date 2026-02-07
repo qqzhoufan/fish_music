@@ -19,21 +19,53 @@
 - Docker 20.10+
 - Docker Compose 2.0+
 
-### 部署步骤
+### 部署方式
 
-#### 1️⃣ 获取 Telegram Bot Token
+#### 方式一：使用 Docker Hub 镜像（推荐）⭐
+
+**无需克隆源码，直接使用已构建的镜像！**
+
+```bash
+# 1. 创建项目目录
+mkdir fish-music && cd fish-music
+
+# 2. 下载配置文件
+wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/config.yaml.example
+mv config.yaml.example config.yaml
+
+# 3. 编辑配置（填入 Bot Token 和 Admin ID）
+nano config.yaml
+
+# 4. 下载 docker-compose.yml
+wget https://raw.githubusercontent.com/qqzhoufan/fish_music/main/docker-compose.yml
+
+# 5. 启动服务
+docker compose up -d
+
+# 6. 查看日志
+docker compose logs -f bot
+```
+
+**镜像地址**：`zhouwl/fish-music:latest`
+
+---
+
+#### 方式二：从源码部署
+
+```bash
+# 1️⃣ 获取 Telegram Bot Token
 
 在 Telegram 中搜索 [@BotFather](https://t.me/BotFather)，发送 `/newbot` 创建机器人，获取 Token。
 
-#### 2️⃣ 获取你的 Telegram ID
+# 2️⃣ 获取你的 Telegram ID
 
 在 Telegram 中搜索 [@userinfobot](https://t.me/userinfobot)，发送 `/start` 获取你的 User ID。
 
-#### 3️⃣ 克隆并配置
+# 3️⃣ 克隆并配置
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/fish-music.git
+git clone https://github.com/qqzhoufan/fish_music.git
 cd fish-music
 
 # 复制配置文件
@@ -86,6 +118,34 @@ docker compose logs -f bot
 ### 📖 详细部署文档
 
 遇到问题？查看 [详细部署指南](./DEPLOY.md)
+
+---
+
+## 🐳 Docker 镜像说明
+
+本项目提供两种部署方式：
+
+### 使用 Docker Hub 镜像（推荐）
+
+- **镜像地址**：`zhouwl/fish-music:latest`
+- **镜像大小**：约 200MB
+- **优点**：
+  - ✅ 无需本地构建，下载即用
+  - ✅ 部署速度快（约 1-2 分钟）
+  - ✅ 自动更新，跟随最新版本
+- **使用场景**：快速部署、生产环境
+
+### 从源码构建
+
+- **优点**：
+  - ✅ 可自定义修改代码
+  - ✅ 适合开发和调试
+- **使用场景**：开发环境、自定义需求
+
+**开发者使用**：
+```bash
+docker compose -f docker-compose.build.yml up -d
+```
 
 ---
 
