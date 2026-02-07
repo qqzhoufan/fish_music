@@ -300,13 +300,14 @@ https://www.youtube.com/watch?v=xxxxx
 
 **A:** 可能的原因：
 1. **Bot 检测错误**：显示 "Sign in to confirm you're not a bot"
-   - **解决方案**：配置 YouTube cookies，详见 [COOKIES.md](./COOKIES.md)
+   - **解决方案 1**：配置 cookies（较复杂），详见 [COOKES.md](./COOKES.md)
 2. 视频有地区限制或版权保护
+   - **解决方案 2**（推荐）：使用在线工具转换后发送 MP3
 3. 服务器网络无法访问 YouTube
 
 **推荐方案**：
-- 配置 cookies（推荐）：参考 [YouTube Cookies 配置指南](./COOKIES.md)
-- 手动下载：使用在线 YouTube 转 MP3 工具转换后，直接发送 MP3 文件给 Bot
+- 使用 https://y2mate.com 或 https://yt1s.com 转换为 MP3
+- 直接发送 MP3 文件给 Bot
 
 ### Q: 日语、韩语歌名会显示乱码吗？
 
