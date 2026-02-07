@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: fish_music_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fish_music
+      POSTGRES_PASSWORD: fish_music_pass
+      POSTGRES_DB: fish_music
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fish_music"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Bot 服务
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fish_music_bot
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=fish_music
+      - DB_PASSWORD=fish_music_pass
+      - DB_NAME=fish_music
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./tmp:/app/tmp
+    command: ["/app/bin/bot"]
+
+  # Web 管理服务
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fish_music_web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=fish_music
+      - DB_PASSWORD=fish_music_pass
+      - DB_NAME=fish_music
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./tmp:/app/tmp
+    ports:
+      - "9999:9999"
+    command: ["/app/bin/web"]
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: fish_music_network

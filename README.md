@@ -1,172 +1,337 @@
-# Fish Music
-这是一个为你定制的、标准化的 **软件需求规格说明书 (SRS/PRD)**。你可以直接用这份文档作为开发的蓝图，或者将来交给其他协助开发者使用。
+# 🎵 Fish Music
+
+> 基于 Telegram 的个人云端音乐机器人 - 利用 Telegram 无限云存储构建你的专属音乐库
+
+[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)]
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat&logo=postgresql)]
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)]
+[![Deploy](https://img.shields.io/badge/Deployment-Easy-success)]()
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat)]
 
 ---
 
-# 项目名称：Fish-Music (Telegram 个人云音乐机器人)
+## ⚡ 5 分钟快速部署
 
-**版本号**：v1.0
+> 只需要一台服务器（1GB 内存即可），Docker 一键部署！
 
-**日期**：2026-02-07
+### 前置要求
 
-**技术栈**：Golang / PostgreSQL / Docker
+- Docker 20.10+
+- Docker Compose 2.0+
 
----
+### 部署步骤
 
-## 1. 项目概述 (Project Overview)
+#### 1️⃣ 获取 Telegram Bot Token
 
-### 1.1 背景
+在 Telegram 中搜索 [@BotFather](https://t.me/BotFather)，发送 `/newbot` 创建机器人，获取 Token。
 
-本项目旨在利用 Telegram 的无限云存储特性，构建一个个人专属的音乐库。通过 VPS 作为中转站，将外部音乐资源下载、刮削元数据后上传至 Telegram，利用 `File_ID` 实现“一次下载，永久秒播”。
+#### 2️⃣ 获取你的 Telegram ID
 
-### 1.2 核心目标
+在 Telegram 中搜索 [@userinfobot](https://t.me/userinfobot)，发送 `/start` 获取你的 User ID。
 
-* **私有云库**：建立持久化的个人音乐索引数据库。
-* **中转即焚**：VPS 仅作临时处理，处理完毕立即释放空间，低成本运行。
-* **极致体验**：支持元数据刮削（封面、歌词、地区）、收藏、历史记录及 Web 端补档管理。
+#### 3️⃣ 克隆并配置
 
----
+```bash
+# 克隆项目
+git clone https://github.com/yourusername/fish-music.git
+cd fish-music
 
-## 2. 系统架构需求 (System Architecture)
+# 复制配置文件
+cp config.yaml.example config.yaml
 
-### 2.1 运行环境
+# 编辑配置（填入 Bot Token 和 Admin ID）
+nano config.yaml
+```
 
-* **后端语言**：Golang (1.20+)
-* **数据库**：PostgreSQL
-* **外部工具**：`yt-dlp` (下载源), `ffmpeg` (音频处理)
-* **配置方式**：基于文件的配置 (`config.yaml`)，不依赖数据库启动。
+**config.yaml 配置示例：**
 
-### 2.2 模块划分
+```yaml
+bot:
+  token: "1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ"  # 你的 Bot Token
+  admin_id: 123456789                             # 你的 Telegram ID
 
-1. **Bot 交互层**：处理 TG 消息、命令、回调查询。
-2. **业务逻辑层**：处理搜索、下载队列、元数据注入、上传中转。
-3. **数据持久层**：PostgreSQL 读写（歌曲索引、用户数据）。
-4. **Web 管理层**：端口 `9999`，提供后台看板与补档功能。
+database:
+  host: "postgres"      # Docker 部署保持默认
+  port: 5432
+  user: "fish_music"
+  password: "fish_music_pass"
+  dbname: "fish_music"
 
----
+web:
+  port: 9999
+  username: "admin"       # 建议修改
+  password: "fishmusic2024"  # 建议修改为强密码
+```
 
-## 3. 功能需求 (Functional Requirements)
+#### 4️⃣ 启动服务
 
-### 3.1 机器人端 (Telegram Bot)
+```bash
+# 启动所有服务
+docker compose up -d
 
-#### 3.1.1 搜索与播放 (核心)
+# 查看运行状态
+docker compose ps
 
-* **触发方式**：
-* **私聊模式**：直接发送文本（如“周杰伦 稻香”）。
-* **行内模式 (Inline Mode)**：在任意聊天窗口输入 `@BotName 关键词` 唤起搜索面板。
+# 查看日志
+docker compose logs -f bot
+```
 
+#### 5️⃣ 验证部署
 
-* **逻辑流程**：
-1. **优先查库**：检索 PostgreSQL，若存在有效 `File_ID`，直接发送音频（秒回）。
-2. **网络搜索**：若库内无数据，调用外部 API 进行检索，返回候选列表。
-3. **下载中转**：用户点击下载 -> VPS 下载 -> 写入 ID3 (封面/歌词) -> 上传 TG -> **存库并删除本地文件**。
+- **测试 Bot**: 在 Telegram 中找到你的 Bot，发送 `/start`
+- **测试 Web**: 访问 `http://你的服务器IP:9999`
 
+✅ 部署完成！开始添加音乐吧！
 
-* **结果展示**：
-* 必须使用 **Inline Keyboard** 进行交互。
-* 列表需支持**分页**（每页 5-10 条，底部含 `[上一页] [页码] [下一页]` 按钮）。
+### 📖 详细部署文档
 
-
-
-#### 3.1.2 音乐元数据 (Metadata)
-
-* **文件处理**：上传前必须通过 `ffmpeg` 写入 ID3 标签。
-* **字段要求**：
-* **封面 (Cover)**：必须嵌入高清专辑图。
-* **标题/歌手**：准确对应。
-* **地区 (Country)**：自动识别歌手所属地，展示为 Emoji (如 🇨🇳, 🇯🇵, 🇺🇸)。
-* **年份 (Year)**：格式化为中文（如 `2004年`）。
-* **歌词 (Lyrics)**：
-* 短歌词：直接写入音频文件的 Lyrics 标签或 Caption。
-* 长歌词：提供 Telegraph 链接或 `.lrc` 文件下载。
-
-
-
-
-
-#### 3.1.3 用户交互功能
-
-* **收藏系统**：播放卡片下方需有 `❤️ 收藏` 按钮，点击后存入数据库。
-* **播放历史**：自动记录用户最近播放/下载的歌曲，提供 `/history` 命令查询。
-* **随机推荐**：提供 `/random` 命令，从库中随机返回一首歌曲。
-
-### 3.2 Web 管理端 (Web Admin)
-
-* **访问地址**：`http://VPS_IP:9999`
-* **核心功能**：
-1. **仪表盘**：展示总歌曲数、存储占用统计（逻辑上的）、今日下载量。
-2. **缺失补档 (Compensation)**：
-* 列出数据库中标记为 `is_missing=true` 或 `file_id` 失效的歌曲。
-* 提供“**一键重抓**”按钮，后台触发下载上传流程，更新 `File_ID`。
-
-
-3. **元数据修正**：(可选) 允许手动编辑歌曲的标题、歌手信息。
-
-
+遇到问题？查看 [详细部署指南](./DEPLOY.md)
 
 ---
 
-## 4. 数据需求 (Data Requirements)
+## ✨ 特色功能
 
-### 4.1 核心数据实体
-
-* **Songs (歌曲表)**：
-* `unique_hash` (文件指纹，防止重复下载)
-* `file_id` (Telegram 核心资产)
-* `source_url` (源链接，用于补档)
-* `metadata` (JSON 或独立字段：含年份、国家、歌词)
-* `status` (正常 / 需补档)
-
-
-* **Config (配置)**：由 `config.yaml` 静态文件管理，**不入库**。
+- 🚀 **YouTube 自动下载** - 发送链接即可自动提取音频并添加到音乐库
+- 💾 **无限云存储** - 音乐文件存储在 Telegram 云端，VPS 仅保存元数据，零存储成本
+- 🎯 **智能元数据** - 支持手动设置歌手国籍（22 个国家）、歌曲类型、语言分类
+- ⭐ **收藏系统** - 收藏喜欢的歌曲，随时查看
+- 📜 **播放历史** - 自动记录播放历史，支持回听
+- 🎲 **随机播放** - 发现音乐库中的惊喜
+- 🎨 **分类筛选** - 按类型和语言浏览歌曲
+- 🖥️ **Web 管理后台** - 完整的歌曲管理和补档系统
+- 🌍 **多语言支持** - 完美支持中文、日语、韩语等多字节字符
 
 ---
 
-## 5. 非功能性需求 (Non-functional Requirements)
+## 📱 快速使用
 
-### 5.1 性能与并发
+### 添加音乐
 
-* **并发控制**：下载任务必须使用 **Worker Pool (工作池)** 模式，限制同时进行的下载任务数（如最大 3 个），防止 VPS 内存溢出或被封 IP。
-* **响应速度**：
-* 库内命中响应时间 < 500ms。
-* Web 管理端页面加载时间 < 1s。
+**方式一：YouTube 自动下载（推荐）**
 
+发送 YouTube 链接给 Bot，自动下载音频：
 
+```
+https://www.youtube.com/watch?v=xxxxx
+```
 
-### 5.2 安全性
+**方式二：发送 MP3 文件**
 
-* **权限控制**：
-* Bot 的管理命令（如 `/delete`, `/clean`）仅限 `config.yaml` 中配置的 `admin_id` 使用。
-* Web 端建议增加基础的 Basic Auth 认证（用户名/密码）。
+直接在 Telegram 发送 MP3 文件给 Bot，秒速保存。
 
+### 搜索播放
 
-* **隐私保护**：
-* **阅后即焚**：必须确保 `defer os.Remove()` 逻辑覆盖所有上传路径，无论成功与否，本地不留存任何音频文件。
+私聊 Bot，发送歌曲名或歌手名：
 
+```
+周杰伦 稻香
+```
 
+### 机器人命令
 
-### 5.3 鲁棒性
+| 命令 | 功能 |
+|------|------|
+| `/start` | 欢迎信息 |
+| `/help` | 帮助文档 |
+| `/songs` 或 `/list` | 浏览音乐库（随机 10 首） |
+| `/random` | 随机播放 |
+| `/favorites` | 收藏列表 |
+| `/history` | 播放历史 |
+| `/stats` | 统计信息 |
 
-* **重试机制**：网络请求（下载/上传）失败时，应自动重试 3 次。
-* **文件限制**：自动检测源文件大小，超过 50MB 的文件应自动跳过或进行压缩处理（Telegram Bot API 限制）。
+### Web 管理后台
+
+访问 `http://你的服务器IP:9999`，使用配置的用户名和密码登录。
+
+**功能：**
+- 查看所有歌曲
+- 编辑歌曲信息（类型、语言、国籍）
+- 删除歌曲
+- 缺失歌曲补档
+
+📖 详细使用说明：[查看使用手册](./使用说明.md)
 
 ---
 
-## 6. 开发交付物 (Deliverables)
+## 🏗️ 技术架构
 
-1. **源代码**：Golang 源码，包含完整的 `go.mod` 依赖。
-2. **配置文件**：`config.yaml.example` 模板。
-3. **部署脚本**：`Dockerfile` 及 `docker-compose.yml`（含 Postgres 和 Bot 编排）。
-4. **SQL 脚本**：数据库初始化 Schema (`init.sql`)。
+### 存储架构
+
+**重要**：音乐文件全部存储在 Telegram 云端，不占用 VPS 存储空间！
+
+```
+┌─────────────┐
+│   Telegram  │
+│  Cloud CDN  │  ← 音乐文件实际存储位置
+└──────┬──────┘
+       │
+       │ FileID 引用
+       ▼
+┌───────────────────────────────────┐
+│      PostgreSQL Database          │
+│  - 只保存元数据（约 1KB/首）      │
+│  - FileID、标题、歌手等信息        │
+└───────────────────────────────────┘
+```
+
+### 系统要求
+
+- **操作系统**：Linux / macOS / Windows
+- **内存**：建议 1GB+（音乐文件不占用本地空间）
+- **磁盘空间**：建议 5GB+（仅用于临时下载和数据库）
+- **网络**：稳定连接
+
+### 核心技术栈
+
+| 组件 | 技术 |
+|------|------|
+| 后端语言 | Go 1.21+ |
+| Web 框架 | Gin |
+| ORM | GORM |
+| 数据库 | PostgreSQL 15+ |
+| Bot SDK | telegram-bot-api |
+| 视频下载 | yt-dlp |
+| 音频处理 | ffmpeg |
+| 容器化 | Docker & Docker Compose |
 
 ---
 
-## 7. 附录：预期用户流程图 (User Flow)
+## ❓ 常见问题
 
-1. **User**: 输入 "Linkin Park Numb"
-2. **Bot**: 🔍 查询 DB
-* *Case A (命中)*: 返回 Audio (File_ID) ✅
-* *Case B (未命中)*:
-1. 返回 "下载中..."
-2. System: 调用 yt-dlp 下载 -> ffmpeg 嵌入封面/歌词 -> 上传 TG -> 存 DB -> 删本地
-3. Bot: 发送 Audio ✅
+### Q: 音乐会占用我的 VPS 空间吗？
+
+**A:** 不会！音乐文件存储在 Telegram 云端，你的 VPS 只保存元数据（文件 ID、标题、歌手等），每首歌仅占用约 1KB 数据库空间。
+
+### Q: 文件大小限制是多少？
+
+**A:** 单个文件最大 50MB，这是 Telegram Bot API 的限制。
+
+### Q: YouTube 下载失败怎么办？
+
+**A:** 可能的原因：
+1. 视频有地区限制或版权保护
+2. 服务器网络无法访问 YouTube
+
+**推荐方案**：使用在线 YouTube 转 MP3 工具转换后，直接发送 MP3 文件给 Bot。
+
+### Q: 日语、韩语歌名会显示乱码吗？
+
+**A:** 不会！系统已优化 UTF-8 多字节字符处理，完美支持中文、日语、韩语等所有语言。
+
+### Q: 可以在群组中使用吗？
+
+**A:** 可以！使用行内模式：`@BotName 关键词` 即可在任何群组中搜索播放。
+
+---
+
+## 📚 文档
+
+- 📖 **[详细部署指南](./DEPLOY.md)** - 完整的部署和安装说明
+- 🎵 **[使用手册](./使用说明.md)** - 详细的使用说明和技巧
+- 🔧 **[配置详解](./DEPLOY.md#配置详解)** - 所有配置参数说明
+
+---
+
+## 🔄 更新日志
+
+### v1.2.0 (2026-02-08)
+
+#### 新增功能
+- ✨ Web 后台支持手动选择歌手国籍（22 个国家/地区）
+- ✨ 歌曲列表新增"国家"列，显示国家 Emoji
+- ✨ 智能国家代码更新：手动选择优先，未选时根据语言自动设置
+
+#### 优化改进
+- 🐛 修复 Telegram 按钮中日语、韩语等多字节字符显示乱码的问题
+- 🎨 优化 UTF-8 字符处理逻辑
+- 📝 更新文档，明确说明文件存储在 Telegram 云端
+
+### v1.1.0 (2026-02-08)
+
+#### 新增功能
+- ✨ 添加 `/songs` 命令，浏览音乐库中的歌曲
+- ✨ 歌曲支持类型和语言分类
+- ✨ Web 后台添加类型/语言筛选功能
+- ✨ 编辑歌曲时可设置类型和语言
+- ✨ YouTube 自动下载功能优化
+
+#### 优化改进
+- 🎨 优化所有命令的提示信息
+- 🎨 更新帮助文档，更加详细友好
+- 🐛 修复播放历史不记录的问题
+- 🐛 修复 Web 后台编辑功能的体验
+
+### v1.0.0 (2026-02-07)
+
+#### 初始版本
+- ✅ 基础 Bot 功能（搜索、播放、收藏、历史）
+- ✅ YouTube 自动下载
+- ✅ Web 管理后台
+- ✅ 元数据识别（地区、年份）
+- ✅ 随机播放
+- ✅ 统计信息
+
+---
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request！
+
+### 开发环境搭建
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/yourusername/fish-music.git
+cd fish-music
+
+# 2. 复制配置文件
+cp config.yaml.example config.yaml
+# 编辑配置文件
+
+# 3. 启动数据库
+docker compose up -d postgres
+
+# 4. 运行 Bot
+go run cmd/bot/main.go
+
+# 5. 运行 Web 服务
+go run cmd/web/main.go
+```
+
+---
+
+## 📄 许可证
+
+MIT License
+
+Copyright (c) 2026 Fish Music
+
+---
+
+## 🙏 鸣谢
+
+感谢以下开源项目：
+
+- [telegram-bot-api](https://github.com/go-telegram-bot-api/telegram-bot-api) - Telegram Bot API SDK for Go
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - 视频下载工具
+- [GORM](https://github.com/go-gorm/gorm) - Go 语言 ORM 库
+- [Gin](https://github.com/gin-gonic/gin) - Go Web 框架
+
+---
+
+## 📞 联系方式
+
+- **问题反馈**：[GitHub Issues](https://github.com/yourusername/fish-music/issues)
+- **功能建议**：[GitHub Discussions](https://github.com/yourusername/fish-music/discussions)
+
+---
+
+<div align="center">
+
+**🎵 Fish Music - 你的个人云端音乐库**
+
+[⭐ Star](https://github.com/yourusername/fish-music/stargazers) | [🍴 Fork](https://github.com/yourusername/fish-music/network/members) | [📖 文档](./DEPLOY.md)
+
+Made with ❤️ by Fish Music Team
+
+</div>
